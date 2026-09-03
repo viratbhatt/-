@@ -29,7 +29,7 @@ const PAGE_SIZE = 12
 // Helper function to get gradient colors based on Pokémon's primary type
 function getTypeColors(primaryType: string): { bgGradient: string; accentColor: string } {
   const typeColors: Record<string, { bgGradient: string; accentColor: string }> = {
-    normal: { bgGradient: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', accentColor: '#6b7280' },
+    normal: { bgGradient: 'linear-gradient(135deg, #f8f9fa 0%, #bedeff 100%)', accentColor: '#0c275e' },
     fire: { bgGradient: 'linear-gradient(135deg, #fff5f2 0%, #ffedd5 100%)', accentColor: '#ef4444' },
     water: { bgGradient: 'linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%)', accentColor: '#3b82f6' },
     electric: { bgGradient: 'linear-gradient(135deg, #fffbeb 0%, #fef08a 100%)', accentColor: '#eab308' },
@@ -44,7 +44,7 @@ function getTypeColors(primaryType: string): { bgGradient: string; accentColor: 
     rock: { bgGradient: 'linear-gradient(135deg, #fafaf9 0%, #d6d3d1 100%)', accentColor: '#78716c' },
     ghost: { bgGradient: 'linear-gradient(135deg, #f5f5f4 0%, #e7e5e4 100%)', accentColor: '#57534e' },
     dragon: { bgGradient: 'linear-gradient(135deg, #faf5ff 0%, #ddd6fe 100%)', accentColor: '#8b5cf6' },
-    dark: { bgGradient: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', accentColor: '#f9fafb' },
+    dark: { bgGradient: 'linear-gradient(135deg, #b6b6bd 0%, #808095 100%)', accentColor: '#14416f' },
     steel: { bgGradient: 'linear-gradient(135deg, #f4f4f5 0%, #e4e4e7 100%)', accentColor: '#71717a' },
     fairy: { bgGradient: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)', accentColor: '#ec4899' },
   }
@@ -68,10 +68,10 @@ function Pokemon() {
 
   // Load the full Pokémon list once
   if (pokemonList.length === 0 && !loading) {
-    ;(async () => {
+    (async () => {
       setLoading(true)
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=200')
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1000')
         const data = await response.json()
         setPokemonList(data.results)
       } catch {
@@ -85,7 +85,8 @@ function Pokemon() {
   const filteredList = useMemo(() => {
     const lowerSearch = searchTerm.trim().toLowerCase()
     if (!lowerSearch) return pokemonList
-    return pokemonList.filter((pokemon) => pokemon.name.toLowerCase().includes(lowerSearch))
+    console.log('Filtering Pokémon list with search term:', lowerSearch);
+    return pokemonList.filter((pokemon) => pokemon.name.toLowerCase().includes(lowerSearch) || pokemon?.id?.toString().includes(lowerSearch.toString()))
   }, [pokemonList, searchTerm])
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE))
@@ -99,7 +100,7 @@ function Pokemon() {
   if (visiblePokemon.length > 0) {
     const missing = visiblePokemon.filter((pokemon) => !details[pokemon.name])
     if (missing.length > 0) {
-      ;(async () => {
+      (async () => {
         try {
           const responses = await Promise.all(
             missing.map((pokemon) => fetch(pokemon.url).then((res) => res.json()))
@@ -130,13 +131,22 @@ function Pokemon() {
           <h1>Pokémon Explorer</h1>
           <p>Search, browse, and view Pokémon stats from the PokéAPI.</p>
         </div>
-        <input
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Search Pokémon by name"
-          className="search-input"
-          aria-label="Search Pokémon"
-        />
+
+        <div className="search-input-container">
+
+          <input
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search Pokémon by name or ID"
+            className="search-input"
+            aria-label="Search Pokémon"
+          />
+            <img
+                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/6.gif"
+                alt="Scanning"
+                className="pokemon-scan-gif"
+              />
+        </div>
       </header>
 
       {error && <div className="toast error">{error}</div>}
@@ -160,7 +170,13 @@ function Pokemon() {
               <article
                 key={pokemon.name}
                 className="pokemon-card"
-                style={{ background: colors.bgGradient }}
+                style={{ 
+                  maxWidth: '310px',
+                  background: colors.bgGradient, 
+                  borderColor: `${colors.accentColor}50`,
+                  borderWidth: '2px', borderStyle: 'ridge', 
+                  backgroundColor: `${colors.accentColor}100`, // ~15% solid tint over gradient
+                  boxShadow: `4px 4px 10px 4px ${colors.accentColor}80,  4px 4px 4px 4px ${colors.accentColor}10` }}
               >
                 <div className="card-header">
                   <div className="pokemon-id" style={{ color: colors.accentColor }}>#{detail?.id ?? '??'}</div>

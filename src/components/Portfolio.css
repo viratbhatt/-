@@ -1,0 +1,345 @@
+/* ============================================
+   Portfolio - Custom Styles & Animations
+   ============================================ */
+
+/* ── Interactive Background Orbs ────────────────────── */
+.interactive-bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+}
+
+.bg-orb:nth-child(1) {
+  width: 600px;
+  height: 600px;
+  margin-left: -300px;
+  margin-top: -300px;
+}
+
+.bg-orb:nth-child(2) {
+  width: 500px;
+  height: 500px;
+  margin-left: -250px;
+  margin-top: -250px;
+}
+
+.bg-orb:nth-child(3) {
+  width: 550px;
+  height: 550px;
+  margin-left: -275px;
+  margin-top: -275px;
+}
+
+.bg-orb:nth-child(4) {
+  width: 480px;
+  height: 480px;
+  margin-left: -240px;
+  margin-top: -240px;
+}
+
+/* ── Scroll Progress Bar ────────────────────────────── */
+.scroll-progress-bar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 3px;
+  height: 100vh;
+  background: rgba(30, 41, 59, 0.3);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.scroll-progress-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #6366f1, #06b6d4);
+  transition: height 0.05s ease-out;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+/* ── Fade-in from bottom ─────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.animate-fade-up-delay-1 { animation-delay: 0.1s; }
+.animate-fade-up-delay-2 { animation-delay: 0.2s; }
+.animate-fade-up-delay-3 { animation-delay: 0.35s; }
+.animate-fade-up-delay-4 { animation-delay: 0.5s; }
+
+/* ── Apple-style Hero Reveal ────────────────────────── */
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-hero-reveal {
+  animation: hero-reveal 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Apple-style Section Reveal ────────────────────── */
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-section-reveal {
+  animation: section-reveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.pokemon-scan-gif {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 8px;
+  opacity: 1;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* ── Skill badge hover shimmer ───────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.skill-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(129, 140, 248, 0.15) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skill-badge:hover::before {
+  opacity: 1;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* ── Experience card hover lift ───────────────────────── */
+@keyframes card-glow {
+  from { box-shadow: 0 4px 40px rgba(99, 102, 241, 0); }
+  to   { box-shadow: 0 8px 50px rgba(99, 102, 241, 0.12); }
+}
+
+.exp-card:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  animation: card-glow 0.5s ease-out both;
+}
+
+/* ── Typing cursor effect for hero tagline ───────────── */
+@keyframes blink {
+  0%, 40%   { opacity: 1; }
+  60%, 100% { opacity: 0; }
+}
+
+.hero-cursor::after {
+  content: '|';
+  display: inline-block;
+  margin-left: 2px;
+  color: #818cf8;
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Timeline dot pulse ──────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  50%      { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+}
+
+.timeline-dot {
+  animation: pulse-dot 3s ease-in-out infinite;
+}
+
+/* ── Contact form input focus transition ─────────────── */
+.form-input:focus {
+  border-color: #818cf8 !important;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
+
+/* ── Smooth scroll offset for sticky header ──────────── */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ── Layout container for portfolio page ───────────────────────── */
+.portfolio-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+/* ── Interactive section styles ─────────────────────────────── */
+.portfolio-container section {
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms ease, border-color 220ms ease;
+  will-change: transform, box-shadow;
+}
+
+.portfolio-container section:focus-within,
+.portfolio-container section:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 45px rgba(2,6,23,0.6), 0 8px 20px rgba(99,102,241,0.06);
+  border-color: rgba(129,140,248,0.12);
+}
+
+/* Slight 3D tilt for content cards */
+.portfolio-container .tilt { transform-origin: center; transition: transform 260ms ease; }
+.portfolio-container .tilt:hover { transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-4px); }
+
+/* Focus styles for keyboard users */
+.portfolio-container a:focus,
+.portfolio-container button:focus,
+.portfolio-container input:focus,
+.portfolio-container textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(129,140,248,0.18);
+  border-color: #818cf8;
+}
+
+/* Animated CTA gradient */
+.portfolio-container .cta-gradient {
+  background-image: linear-gradient(90deg,#6366f1 0%,#06b6d4 100%);
+  background-size: 200% 100%;
+  transition: background-position 600ms ease, transform 200ms ease;
+}
+.portfolio-container .cta-gradient:hover { background-position: 100% 0; transform: translateY(-2px); }
+
+/* Make skill badges slightly larger on hover/tap */
+.portfolio-container .skill-badge:active,
+.portfolio-container .skill-badge:hover,
+.portfolio-container .skill-badge:focus {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Ensure footer stays contained */
+.portfolio-container footer { padding-left: 8px; padding-right: 8px; }
+
+/* ── Light theme variables ───────────────────────────── */
+:root {
+  --bg: #f8fafc; /* gray-50 */
+  --page-bg: #ffffff; /* white */
+  --muted: #6b7280; /* slate-500 */
+  --accent: #6366f1; /* indigo-500 */
+  --accent-2: #06b6d4; /* cyan-500 */
+  --soft-border: rgba(15, 23, 42, 0.06);
+}
+
+/* ── Card layout (simple, elegant, light) ───────────── */
+.card {
+  background: var(--page-bg);
+  border: 1px solid var(--soft-border);
+  border-radius: 14px;
+  padding: 28px;
+  margin: 20px 0;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+
+.card-inner { padding: 18px; border-radius: 12px; background: transparent; }
+
+/* Header / nav for light theme */
+.site-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(2,6,23,0.06);
+  backdrop-filter: blur(4px);
+}
+
+/* Typography & muted text for light theme */
+.portfolio-container h1,
+.portfolio-container h2,
+.portfolio-container h3 { color: #0f172a; }
+.portfolio-container p, .portfolio-container span, .portfolio-container a { color: var(--muted); }
+
+/* Primary / secondary buttons in light theme */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color: white; padding: 10px 18px; border-radius: 999px; border: none; font-weight: 600;
+}
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: #0f172a; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--soft-border);
+}
+
+/* Adjust skill badge for light background */
+.portfolio-container .skill-badge {
+  background: #f1f5f9; color: #0f172a; border-color: rgba(2,6,23,0.06);
+}
+
+/* Form inputs on light background */
+.portfolio-container .form-input {
+  background: #fff; border: 1px solid rgba(2,6,23,0.06); color: #0f172a;
+}
+
+/* Footer tweak */
+.portfolio-container footer { background: transparent; }

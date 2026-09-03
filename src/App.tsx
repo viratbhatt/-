@@ -5,9 +5,11 @@ import Home from './components/Home'
 export default function App() {
   return (
     <>
-      <nav className="navbar">
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/pokemon">Pokémon</NavLink>
+      <nav className="navbar ">
+        <div className="container">
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/pokemon">Pokémon</NavLink>
+        </div>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
