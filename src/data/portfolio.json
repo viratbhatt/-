@@ -1,0 +1,105 @@
+{
+  "personal": {
+    "firstName": "Virat",
+    "lastName": "Bhatt",
+    "initials": "VB",
+    "title": "Senior Software Engineer",
+    "location": "Aubrey, TX 76227",
+    "tagline": "Hello, I'm",
+    "bio": "Results-oriented Software Engineer with 7+ years of experience building performant and scalable applications using React, Redux, Node.js, and TypeScript. Skilled in developing cross-platform solutions, improving UI/UX, and collaborating across Agile teams. Strong advocate of clean code, automated testing, accessibility, and cloud-native deployments."
+  },
+  "navigation": [
+    { "label": "About", "href": "#about" },
+    { "label": "Experience", "href": "#experience" },
+    { "label": "Skills", "href": "#skills" },
+    { "label": "Contact", "href": "#contact" }
+  ],
+  "experiences": [
+    {
+      "company": "J.P. Morgan Chase",
+      "title": "Senior Software Engineer",
+      "location": "Plano, TX",
+      "period": "Jan 2023 – Present",
+      "highlights": [
+        "Architected and delivered microservices and micro-frontend modules serving millions of financial transactions daily.",
+        "Led cloud-native deployments on AWS (EC2, S3, IAM) with 99.9 % uptime.",
+        "Championed Agile ceremonies — sprint planning, retrospectives, and code reviews across distributed teams.",
+        "Integrated CI/CD pipelines (GitHub Actions / Jenkins) reducing release cycles by 40 %.",
+        "Drove WCAG 2.1 AA accessibility compliance audits for customer-facing dashboards using NVDA and axe-core."
+      ]
+    },
+    {
+      "company": "Cisco (via Infosys)",
+      "title": "Technology Analyst",
+      "location": "Chicago, IL",
+      "period": "Sept 2021 – Dec 2022",
+      "highlights": [
+        "Delivered full-stack features on React / Node.js powering internal networking management tools.",
+        "Designed RESTful API endpoints and integrated PostgreSQL data layers.",
+        "Authored Jest and Cypress test suites achieving 90 %+ code coverage.",
+        "Collaborated with cross-functional Agile squads to ship features ahead of release deadlines."
+      ]
+    },
+    {
+      "company": "Dash Reels",
+      "title": "React Front-End Developer",
+      "location": "Irvine, CA",
+      "period": "Mar 2021 – Aug 2021",
+      "highlights": [
+        "Built a video-analysis software UI leveraging React Hooks (useState, useEffect, useMemo) for real-time rendering.",
+        "Developed a custom media player component with keyboard-accessible controls and ARIA live regions.",
+        "Optimized bundle size by ~35 % through code-splitting and lazy loading strategies."
+      ]
+    },
+    {
+      "company": "Medici Investments",
+      "title": "Web Developer",
+      "location": "Costa Mesa, CA",
+      "period": "Apr 2020 – Feb 2021",
+      "highlights": [
+        "Built a React / Redux SPA for investment portfolio management with real-time data visualizations.",
+        "Developed a React Native feedback application deployed to iOS and Android stores.",
+        "Integrated Firebase Authentication, Firestore, and Cloud Functions for secure backend operations."
+      ]
+    }
+  ],
+  "skillGroups": [
+    {
+      "label": "Frontend",
+      "icon": "palette",
+      "skills": ["React.js", "Redux", "JavaScript (ES6+)", "TypeScript", "HTML5", "CSS3", "Bootstrap", "Electron.js"]
+    },
+    {
+      "label": "Backend & Architecture",
+      "icon": "server",
+      "skills": ["Node.js", "Express.js", "Spring Boot", "RESTful APIs", "Microservices"]
+    },
+    {
+      "label": "Databases & Cloud",
+      "icon": "cloud",
+      "skills": ["AWS (S3, EC2, IAM)", "PostgreSQL", "MySQL", "Firebase", "CI/CD", "Git"]
+    },
+    {
+      "label": "Testing & Tools",
+      "icon": "test-tube",
+      "skills": ["Jest", "Cypress", "Accessibility Testing (NVDA)", "JIRA", "Agile / Scrum"]
+    }
+  ],
+  "experienceSubheading": "A timeline of my professional journey across finance, networking, media, and investing.",
+  "skillsSubheading": "Technologies and tools I use to build modern web applications.",
+  "contact": {
+    "heading": "Get in Touch",
+    "description": "I'm always open to discussing new opportunities, collaborations, or just a friendly tech chat. Feel free to reach out!",
+    "formTitle": "Send me a message",
+    "fields": [
+      { "label": "Name", "id": "contact-name", "name": "name", "type": "text", "placeholder": "Your full name", "autocomplete": "name" },
+      { "label": "Email", "id": "contact-email", "name": "email", "type": "email", "placeholder": "you@example.com", "autocomplete": "email" },
+      { "label": "Message", "id": "contact-message", "name": "message", "type": "textarea", "placeholder": "Tell me about your project or opportunity...", "rows": 5 }
+    ],
+    "submitLabel": "Send Message",
+    "email": { "address": "viratbhatt007@gmail.com" },
+    "phone": { "number": "424-391-4863", "raw": "+14243914863" },
+    "linkedin": { "url": "https://www.linkedin.com/in/virat-bhatt6235235qd" }
+  },
+  "footer": "© {year} Virat Bhatt. All rights reserved."
+}
