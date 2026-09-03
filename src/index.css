@@ -71,6 +71,9 @@ button {
 
 .summary-row,
 .pagination-row {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -219,13 +222,48 @@ button {
   background: #3730a3;
 }
 
+.container {
+    width: stretch;
+    display: flex;
+    gap: 1rem;
+    /* padding: 1rem; */
+    max-width: 1180px;
+    margin: 0px auto;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.nav-shell {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-link {
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  color: #374151;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 0.7rem 1.2rem;
+  box-shadow: 0 4px 20px rgba(67, 56, 202, 0.1);
+}
+
 /* Sticky Navbar */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 2rem;
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.9);
@@ -234,23 +272,57 @@ button {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.navbar a {
-  text-decoration: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 12px;
-  color: #374151;
-  font-weight: 600;
-  transition: all 0.2s ease;
+.nav-track {
+  position: relative;
+  width: 100%;
+  height: 42px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  overflow: hidden;
+  box-shadow: inset 0 0 12px rgba(99, 102, 241, 0.08);
 }
 
-.navbar a:hover {
-  background: #eef2ff;
-  color: #4338ca;
+.nav-gif {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/6.gif');
+  background-size: cover;
+  background-position: center;
+  animation: navGifMove 5s ease-in-out infinite alternate;
+}
+
+@keyframes navGifMove {
+  0% {
+    left: 0;
+    transform: translateY(-50%) scale(-1, 1);
+    opacity: 1;
+  }
+
+  100% {
+    left: calc(100% - 52px);
+    transform: translateY(-50%) scale(1, 1);
+    opacity: 1;
+  }
+}
+
+.navbar a {
+  text-decoration: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  color: #374151;
+  font-weight: 700;
+  transition: all 0.2s ease;
 }
 
 .navbar a.active {
   background: #4338ca;
   color: #ffffff;
+  padding: 0.7rem 1.2rem;
+  box-shadow: 0 4px 20px rgba(67, 56, 202, 0.1);
+    border-radius: 12px;
 }
 
 .home-page {

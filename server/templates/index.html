@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Monitor - Video Stream</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0a2e, #2d1b4e);
+            min-height: 100vh;
+            color: #e0d5f0;
+        }
+
+        .navbar {
+            background: rgba(45, 27, 78, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar a {
+            color: #e0d5f0;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .navbar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar .active {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem 1rem;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid #4a2c6a;
+        }
+
+        .status-indicator.cry {
+            background: rgba(255, 107, 107, 0.9);
+            border-color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .cry-alert {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .cry-alert.show {
+            opacity: 1;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(45, 27, 78, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+        }
+
+        .controls button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .controls button:active {
+            transform: scale(0.98);
+        }
+
+        .controls button:focus {
+            outline: 2px solid #ff6b6b;
+            outline-offset: 2px;
+        }
+
+        .controls button:hover {
+            background: #ff4757;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 1rem;
+            color: #a095bc;
+            font-size: 0.9rem;
+        }
+
+        .info span {
+            color: #e0d5f0;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .navbar a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/">Baby Monitor</a>
+        </div>
+    </nav>
+
+    <div class="video-container">
+        <video id="webcamFeed" autoplay muted playsinline></video>
+        <div class="status-indicator" id="statusIndicator">Waiting for stream...</div>
+        <div class="cry-alert" id="cryAlert">🚨 Baby Cry Detected!</div>
+    </div>
+
+    <div class="controls">
+        <button id="startBtn">Start Detection</button>
+        <button id="stopBtn" disabled>Stop Detection</button>
+    </div>
+
+    <div class="info">
+        Stream: <span id="streamStatus">Disconnected</span> | 
+        Cry: <span id="cryStatus">None</span>
+    </div>
+
+    <script>
+        let ws = null;
+        let cryDetectionInterval = null;
+        let isCryDetecting = false;
+
+        // Connect to WebSocket for cry detection updates
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.host;
+            ws = new WebSocket(`${protocol}//${host}/ws`);
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                document.getElementById('streamStatus').textContent = 'Connected';
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                updateCryStatus(data);
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                document.getElementById('streamStatus').textContent = 'Disconnected';
+                if (cryDetectionInterval) {
+                    clearInterval(cryDetectionInterval);
+                    cryDetectionInterval = null;
+                }
+                isCryDetecting = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        // Update cry detection UI
+        function updateCryStatus(data) {
+            const cryAlert = document.getElementById('cryAlert');
+            const cryStatus = document.getElementById('cryStatus');
+            const statusIndicator = document.getElementById('statusIndicator');
+            
+            if (data.cry_detected) {
+                cryAlert.classList.add('show');
+                cryStatus.textContent = 'Cry Detected';
+                statusIndicator.classList.add('cry');
+            } else {
+                cryAlert.classList.remove('show');
+                cryStatus.textContent = 'No Cry';
+                statusIndicator.classList.remove('cry');
+            }
+        }
+
+        // Start cry detection
+        function startCryDetection() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert('WebSocket not connected');
+                return;
+            }
+            
+            fetch('/api/start_detection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    isCryDetecting = true;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    
+                    // Poll cry detection status every 500ms
+                    cryDetectionInterval = setInterval(() => {
+                        fetch('/detect_cry')
+                        .then(response => response.json())
+                        .then(data => {
+                            updateCryStatus(data);
+                        });
+                    }, 500);
+                }
+            })
+            .catch(error => {
+                console.error('Error starting detection:', error);
+            });
+        }
+
+        // Stop cry detection
+        function stopCryDetection() {
+            isCryDetecting = false;
+            if (cryDetectionInterval) {
+                clearInterval(cryDetectionInterval);
+                cryDetectionInterval = null;
+            }
+            
+            fetch('/api/stop_detection', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCryStatus({ cry_detected: false });
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                }
+            });
+        }
+
+        // Initialize webcam video stream
+        async function initWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: 640, height: 480 },
+                    audio: false
+                });
+                
+                const videoElement = document.getElementById('webcamFeed');
+                videoElement.srcObject = stream;
+                
+                // Also connect WebSocket for cry detection
+                connectWebSocket();
+            } catch (err) {
+                console.error('Webcam error:', err);
+                alert('Could not access webcam. Please allow permissions.');
+                document.getElementById('streamStatus').textContent = 'Permission denied';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startCryDetection);
+        document.getElementById('stopBtn').addEventListener('click', stopCryDetection);
+        
+        // Initialize on load
+        window.addEventListener('load', initWebcam);
+    </script>
+</body>
+</html>

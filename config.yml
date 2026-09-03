@@ -1,0 +1,9 @@
+tunnel: my-tunnel
+credentials-file: /Users/viratbhatt/.cloudflared/667d02c4-3790-4845-9e08-53364a35d7c1.json
+
+ingress:  # your Express backend
+
+  - hostname: viratbhatt.com
+    service: http://localhost:5173   # your React frontend
+
+  - service: http_status:404
