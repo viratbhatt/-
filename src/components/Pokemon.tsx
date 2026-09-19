@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface PokemonSummary {
   name: string
@@ -12,12 +12,19 @@ interface Stat {
   }
 }
 
+interface PokemonSpriteData {
+  front_default: string | null
+  other?: {
+    showdown?: { front_default?: string | null }
+    dream_world?: { front_default?: string | null }
+    "official-artwork": { front_default?: string | null }
+  }
+}
+
 interface PokemonDetail {
   id: number
   name: string
-  sprites: {
-    front_default: string | null
-  }
+  sprites: PokemonSpriteData
   types: { type: { name: string } }[]
   stats: Stat[]
   height: number
@@ -26,7 +33,6 @@ interface PokemonDetail {
 
 const PAGE_SIZE = 12
 
-// Helper function to get gradient colors based on Pokémon's primary type
 function getTypeColors(primaryType: string): { bgGradient: string; accentColor: string } {
   const typeColors: Record<string, { bgGradient: string; accentColor: string }> = {
     normal: { bgGradient: 'linear-gradient(135deg, #f8f9fa 0%, #bedeff 100%)', accentColor: '#0c275e' },
@@ -66,9 +72,10 @@ function Pokemon() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Load the full Pokémon list once
-  if (pokemonList.length === 0 && !loading) {
-    (async () => {
+  useEffect(() => {
+    if (pokemonList.length > 0 || loading) return
+
+    const loadList = async () => {
       setLoading(true)
       try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1000')
@@ -79,14 +86,20 @@ function Pokemon() {
       } finally {
         setLoading(false)
       }
-    })()
-  }
+    }
+
+    void loadList()
+  }, [loading, pokemonList.length])
 
   const filteredList = useMemo(() => {
     const lowerSearch = searchTerm.trim().toLowerCase()
     if (!lowerSearch) return pokemonList
-    console.log('Filtering Pokémon list with search term:', lowerSearch);
-    return pokemonList.filter((pokemon) => pokemon.name.toLowerCase().includes(lowerSearch) || pokemon?.id?.toString().includes(lowerSearch.toString()))
+
+    return pokemonList.filter((pokemon) => {
+      const urlParts = pokemon.url.split('/').filter(Boolean)
+      const id = urlParts[urlParts.length - 1] ?? ''
+      return pokemon.name.toLowerCase().includes(lowerSearch) || id.includes(lowerSearch)
+    })
   }, [pokemonList, searchTerm])
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE))
@@ -96,28 +109,40 @@ function Pokemon() {
     return filteredList.slice(start, start + PAGE_SIZE)
   }, [filteredList, page])
 
-  // Load details for visible Pokémon that are missing them
-  if (visiblePokemon.length > 0) {
+  useEffect(() => {
+    if (visiblePokemon.length === 0) return
+
     const missing = visiblePokemon.filter((pokemon) => !details[pokemon.name])
-    if (missing.length > 0) {
-      (async () => {
-        try {
-          const responses = await Promise.all(
-            missing.map((pokemon) => fetch(pokemon.url).then((res) => res.json()))
-          )
-          setDetails((current) => {
-            const next = { ...current }
-            for (const detail of responses) {
-              next[detail.name] = detail
-            }
-            return next
-          })
-        } catch {
-          setError('Failed to load Pokémon details.')
-        }
-      })()
+    if (missing.length === 0) return
+
+    const loadDetails = async () => {
+      try {
+        const responses = await Promise.all(
+          missing.map((pokemon) => fetch(pokemon.url).then((res) => res.json())),
+        )
+
+        setDetails((current) => {
+          const next = { ...current }
+          for (const detail of responses) {
+            next[detail.name] = detail
+          }
+          return next
+        })
+      } catch {
+        setError('Failed to load Pokémon details.')
+      }
     }
-  }
+
+    void loadDetails()
+  }, [details, visiblePokemon])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pokemon-details-cache', JSON.stringify(details))
+    } catch {
+      // Ignore storage write errors.
+    }
+  }, [details])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value)
@@ -133,7 +158,6 @@ function Pokemon() {
         </div>
 
         <div className="search-input-container">
-
           <input
             value={searchTerm}
             onChange={handleSearchChange}
@@ -141,11 +165,11 @@ function Pokemon() {
             className="search-input"
             aria-label="Search Pokémon"
           />
-            <img
-                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/6.gif"
-                alt="Scanning"
-                className="pokemon-scan-gif"
-              />
+          <img
+            src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/6.gif"
+            alt="Scanning"
+            className="pokemon-scan-gif"
+          />
         </div>
       </header>
 
@@ -166,61 +190,83 @@ function Pokemon() {
             const detail = details[pokemon.name]
             const primaryType = detail?.types?.[0]?.type.name || 'normal'
             const colors = getTypeColors(primaryType)
+          
+            const spriteUrl =
+              detail?.sprites?.other?.["official-artwork"]?.front_default ??
+              detail?.sprites?.other?.dream_world?.front_default ??
+              detail?.sprites?.front_default ??
+              ''
+
             return (
               <article
                 key={pokemon.name}
                 className="pokemon-card"
-                style={{ 
-                  maxWidth: '310px',
-                  background: colors.bgGradient, 
+                style={{
+                  minWidth: '350px',
+                  background: colors.bgGradient,
                   borderColor: `${colors.accentColor}50`,
-                  borderWidth: '2px', borderStyle: 'ridge', 
-                  backgroundColor: `${colors.accentColor}100`, // ~15% solid tint over gradient
-                  boxShadow: `4px 4px 10px 4px ${colors.accentColor}80,  4px 4px 4px 4px ${colors.accentColor}10` }}
+                  borderWidth: '2px',
+                  borderStyle: 'ridge',
+                  backgroundColor: `${colors.accentColor}100`,
+                  boxShadow: `4px 4px 10px 4px ${colors.accentColor}80,  4px 4px 4px 4px ${colors.accentColor}10`,
+                }}
               >
                 <div className="card-header">
-                  <div className="pokemon-id" style={{ color: colors.accentColor }}>#{detail?.id ?? '??'}</div>
+                  <div className="pokemon-id" style={{ color: colors.accentColor }}>
+                    #{detail?.id ?? '??'}
+                  </div>
                   <h2>{pokemon.name}</h2>
                 </div>
+
                 <div className="sprite-wrap">
-                  {detail?.sprites.other.showdown.front_default ? (
+                  {spriteUrl ? (
                     <img
-                      src={details[pokemon.name].sprites.other.showdown.front_default}
+                      src={spriteUrl}
                       alt={pokemon.name}
-                      width={120}
-                      height={120}
+                      width={220}
+                      height={220}
+                      style={{
+                        filter: 'drop-shadow(0 30px 18px rgba(15, 23, 42, 0.5))',
+                        background: 'transparent',
+                        borderRadius: 0,
+                        display: 'block',
+                      }}
                     />
-                ) : (
-                  <div className="sprite-placeholder">No image</div>
-                )}
-              </div>
-              {details[pokemon.name] ? (
-                <div className="card-body">
-                  <div className="type-list">
-                    {details[pokemon.name].types.map((entry) => (
-                      <span key={entry.type.name} className="type-pill">
-                        {entry.type.name}
-                      </span>
-                    ))}
-                  </div>
-                  <dl className="stat-list">
-                    {details[pokemon.name].stats.map((stat) => (
-                      <div key={stat.stat.name} className="stat-item">
-                        <dt>{stat.stat.name}</dt>
-                        <dd>{stat.base_stat}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                  <div className="misc-row">
-                    <span>Height: {details[pokemon.name].height}</span>
-                    <span>Weight: {details[pokemon.name].weight}</span>
-                  </div>
+                  ) : (
+                    <div className="sprite-placeholder">No image</div>
+                  )}
                 </div>
-              ) : (
-                <div className="loading-card">Loading details…</div>
-              )}
-            </article>
-          )})}
+
+                {detail ? (
+                  <div className="card-body">
+                    <div className="type-list">
+                      {detail.types.map((entry) => (
+                        <span key={entry.type.name} className="type-pill">
+                          {entry.type.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    <dl className="stat-list">
+                      {detail.stats.map((stat) => (
+                        <div key={stat.stat.name} className="stat-item">
+                          <dt>{stat.stat.name}</dt>
+                          <dd>{stat.base_stat}</dd>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <div className="misc-row">
+                      <span>Height: {detail.height}</span>
+                      <span>Weight: {detail.weight}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="loading-card">Loading details…</div>
+                )}
+              </article>
+            )
+          })}
         </div>
       )}
 
